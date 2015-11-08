@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380" : 0,
+    "958121811069C87EC28EC7DF8614F18823B99C89" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "876CC5C2-042A-4178-8488-EF48AB363B9D",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380" : "chickadee-iOS",
+    "958121811069C87EC28EC7DF8614F18823B99C89" : "react-native-speech\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Chickadee",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "iOS\/Chickadee.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/tannewt\/react-native-speech.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "958121811069C87EC28EC7DF8614F18823B99C89"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/tannewt\/chickadee-iOS.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380"
+    }
+  ]
+}
