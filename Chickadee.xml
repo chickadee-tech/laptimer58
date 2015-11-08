@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="D">
+  <design>
+    <source>/Users/tannewt/chickadee-laptimer-pcb/Chickadee.sch</source>
+    <date>Wednesday, October 07, 2015 'PMt' 03:18:58 PM</date>
+    <tool>Eeschema (2015-10-06 BZR 6248)-product</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title/>
+        <company/>
+        <rev/>
+        <date/>
+        <source>Chickadee.sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+    <sheet number="2" name="/5V/3V3 Regulator/" tstamps="/56158CC6/">
+      <title_block>
+        <title/>
+        <company/>
+        <rev/>
+        <date/>
+        <source>Regulator.sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="U1">
+      <value>ESP-12E</value>
+      <footprint>ESP8266:ESP-12E</footprint>
+      <libsource lib="ESP8266" part="ESP-12E"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>56144F8D</tstamp>
+    </comp>
+    <comp ref="CON1">
+      <value>BARREL_JACK</value>
+      <footprint>Connect:BARREL_JACK</footprint>
+      <libsource lib="conn" part="BARREL_JACK"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>56145993</tstamp>
+    </comp>
+    <comp ref="RF1">
+      <value>RX5808</value>
+      <libsource lib="rx5808" part="RX5808"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>561470C4</tstamp>
+    </comp>
+    <comp ref="REG1">
+      <value>BD93291EFJ</value>
+      <libsource lib="bd93291efj" part="BD93291EFJ"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>56158FFE</tstamp>
+    </comp>
+    <comp ref="C_VC1">
+      <value>10uF</value>
+      <libsource lib="device" part="C"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>5615903E</tstamp>
+    </comp>
+    <comp ref="C_CO3">
+      <value>10uF</value>
+      <libsource lib="device" part="C"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>56159080</tstamp>
+    </comp>
+    <comp ref="C_CO1">
+      <value>22uF</value>
+      <libsource lib="device" part="C"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>561590AD</tstamp>
+    </comp>
+    <comp ref="C_UP1">
+      <value>680pF</value>
+      <libsource lib="device" part="C"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>561590D6</tstamp>
+    </comp>
+    <comp ref="C_CO2">
+      <value>22uF</value>
+      <libsource lib="device" part="C"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>5615913A</tstamp>
+    </comp>
+    <comp ref="C_BST1">
+      <value>0.1uF</value>
+      <libsource lib="device" part="C"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>561591FF</tstamp>
+    </comp>
+    <comp ref="L1">
+      <value>22uH</value>
+      <libsource lib="device" part="INDUCTOR"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>56159A98</tstamp>
+    </comp>
+    <comp ref="L2">
+      <value>2.2uH</value>
+      <libsource lib="device" part="INDUCTOR"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>56159EA9</tstamp>
+    </comp>
+    <comp ref="R_UP1">
+      <value>16kOhm</value>
+      <libsource lib="device" part="R_Small"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>5615A00A</tstamp>
+    </comp>
+    <comp ref="R_DW1">
+      <value>5.1kOhm</value>
+      <libsource lib="device" part="R_Small"/>
+      <sheetpath names="/5V/3V3 Regulator/" tstamps="/56158CC6/"/>
+      <tstamp>5615A058</tstamp>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="bd93291efj" part="BD93291EFJ">
+      <fields>
+        <field name="Reference">REG</field>
+        <field name="Value">BD93291EFJ</field>
+      </fields>
+      <pins>
+        <pin num="1" name="SW" type="input"/>
+        <pin num="2" name="BST" type="input"/>
+        <pin num="3" name="EN" type="input"/>
+        <pin num="4" name="VIN" type="input"/>
+        <pin num="5" name="GND" type="input"/>
+        <pin num="6" name="FBL" type="input"/>
+        <pin num="7" name="SWL" type="input"/>
+        <pin num="8" name="VOUT" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="ESP8266" part="ESP-12E">
+      <description>ESP8622 ESP-12E module, 22 pins, 2mm, PCB antenna</description>
+      <docs>http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/</docs>
+      <footprints>
+        <fp>ESP-12E</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">ESP-12E</field>
+      </fields>
+      <pins>
+        <pin num="1" name="REST" type="input"/>
+        <pin num="2" name="ADC" type="passive"/>
+        <pin num="3" name="CH_PD" type="input"/>
+        <pin num="4" name="GPIO16" type="BiDi"/>
+        <pin num="5" name="GPIO14" type="BiDi"/>
+        <pin num="6" name="GPIO12" type="BiDi"/>
+        <pin num="7" name="GPIO13" type="BiDi"/>
+        <pin num="8" name="VCC" type="power_in"/>
+        <pin num="9" name="CS0" type="BiDi"/>
+        <pin num="10" name="MISO" type="BiDi"/>
+        <pin num="11" name="GPIO9" type="BiDi"/>
+        <pin num="12" name="GPIO10" type="BiDi"/>
+        <pin num="13" name="MOSI" type="BiDi"/>
+        <pin num="14" name="SCLK" type="BiDi"/>
+        <pin num="15" name="GND" type="power_in"/>
+        <pin num="16" name="GPIO15" type="BiDi"/>
+        <pin num="17" name="GPIO2" type="BiDi"/>
+        <pin num="18" name="GPIO0" type="BiDi"/>
+        <pin num="19" name="GPIO4" type="BiDi"/>
+        <pin num="20" name="GPIO5" type="BiDi"/>
+        <pin num="21" name="RXD" type="input"/>
+        <pin num="22" name="TXD" type="output"/>
+      </pins>
+    </libpart>
+    <libpart lib="rx5808" part="RX5808">
+      <fields>
+        <field name="Reference">RF</field>
+        <field name="Value">RX5808</field>
+      </fields>
+      <pins>
+        <pin num="1" name="GND" type="input"/>
+        <pin num="2" name="VIDEO" type="input"/>
+        <pin num="3" name="AUDIO" type="input"/>
+        <pin num="4" name="RSSI" type="input"/>
+        <pin num="5" name="VCC" type="input"/>
+        <pin num="6" name="GND" type="input"/>
+        <pin num="7" name="CH3/CS" type="input"/>
+        <pin num="8" name="CH2/SISO" type="input"/>
+        <pin num="9" name="CH1/SCK" type="input"/>
+        <pin num="10" name="GND" type="input"/>
+        <pin num="11" name="RFIN" type="input"/>
+        <pin num="12" name="GND" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="device" part="INDUCTOR">
+      <fields>
+        <field name="Reference">L</field>
+        <field name="Value">INDUCTOR</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="conn" part="BARREL_JACK">
+      <description>DC Barrel Jack</description>
+      <fields>
+        <field name="Reference">CON</field>
+        <field name="Value">BARREL_JACK</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+        <pin num="3" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="device" part="C">
+      <description>Unpolarized capacitor</description>
+      <footprints>
+        <fp>C?</fp>
+        <fp>C_????_*</fp>
+        <fp>C_????</fp>
+        <fp>SMD*_c</fp>
+        <fp>Capacitor*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="device" part="R_Small">
+      <description>Resistor</description>
+      <footprints>
+        <fp>Resistor_*</fp>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="ESP8266">
+      <uri>/Users/tannewt/kicad/libraries/kicad-ESP8266/ESP8266.lib</uri>
+    </library>
+    <library logical="rx5808">
+      <uri>/Users/tannewt/kicad/libraries/kicad-rx5808/rx5808.lib</uri>
+    </library>
+    <library logical="bd93291efj">
+      <uri>/Users/tannewt/chickadee-laptimer-pcb/libraries/bd93291efj.lib</uri>
+    </library>
+    <library logical="conn">
+      <uri>/Library/Application Support/kicad/library/conn.lib</uri>
+    </library>
+    <library logical="device">
+      <uri>/Library/Application Support/kicad/library/device.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="Net-(RF1-Pad2)">
+      <node ref="RF1" pin="2"/>
+    </net>
+    <net code="2" name="Net-(RF1-Pad3)">
+      <node ref="RF1" pin="3"/>
+    </net>
+    <net code="3" name="+5V">
+      <node ref="C_CO3" pin="1"/>
+      <node ref="REG1" pin="8"/>
+      <node ref="L1" pin="1"/>
+      <node ref="C_CO1" pin="1"/>
+      <node ref="RF1" pin="5"/>
+    </net>
+    <net code="4" name="Net-(RF1-Pad7)">
+      <node ref="RF1" pin="7"/>
+    </net>
+    <net code="5" name="Net-(RF1-Pad8)">
+      <node ref="RF1" pin="8"/>
+    </net>
+    <net code="6" name="Net-(RF1-Pad9)">
+      <node ref="RF1" pin="9"/>
+    </net>
+    <net code="7" name="Net-(RF1-Pad10)">
+      <node ref="RF1" pin="10"/>
+    </net>
+    <net code="8" name="Net-(RF1-Pad11)">
+      <node ref="RF1" pin="11"/>
+    </net>
+    <net code="9" name="Net-(RF1-Pad12)">
+      <node ref="RF1" pin="12"/>
+    </net>
+    <net code="10" name="/RSSI">
+      <node ref="U1" pin="2"/>
+      <node ref="RF1" pin="4"/>
+    </net>
+    <net code="11" name="Net-(U1-Pad18)">
+      <node ref="U1" pin="18"/>
+    </net>
+    <net code="12" name="+3V3">
+      <node ref="L2" pin="1"/>
+      <node ref="R_UP1" pin="2"/>
+      <node ref="C_UP1" pin="2"/>
+      <node ref="C_CO2" pin="1"/>
+      <node ref="U1" pin="8"/>
+    </net>
+    <net code="13" name="GNDPWR">
+      <node ref="C_VC1" pin="2"/>
+      <node ref="REG1" pin="5"/>
+      <node ref="R_DW1" pin="1"/>
+      <node ref="C_CO3" pin="2"/>
+      <node ref="C_CO1" pin="2"/>
+      <node ref="RF1" pin="6"/>
+      <node ref="U1" pin="15"/>
+      <node ref="C_CO2" pin="2"/>
+      <node ref="RF1" pin="1"/>
+    </net>
+    <net code="14" name="Net-(U1-Pad1)">
+      <node ref="U1" pin="1"/>
+    </net>
+    <net code="15" name="Net-(U1-Pad3)">
+      <node ref="U1" pin="3"/>
+    </net>
+    <net code="16" name="Net-(U1-Pad4)">
+      <node ref="U1" pin="4"/>
+    </net>
+    <net code="17" name="Net-(U1-Pad5)">
+      <node ref="U1" pin="5"/>
+    </net>
+    <net code="18" name="Net-(U1-Pad6)">
+      <node ref="U1" pin="6"/>
+    </net>
+    <net code="19" name="Net-(U1-Pad7)">
+      <node ref="U1" pin="7"/>
+    </net>
+    <net code="20" name="Net-(U1-Pad9)">
+      <node ref="U1" pin="9"/>
+    </net>
+    <net code="21" name="Net-(U1-Pad10)">
+      <node ref="U1" pin="10"/>
+    </net>
+    <net code="22" name="Net-(U1-Pad20)">
+      <node ref="U1" pin="20"/>
+    </net>
+    <net code="23" name="Net-(U1-Pad11)">
+      <node ref="U1" pin="11"/>
+    </net>
+    <net code="24" name="Net-(U1-Pad21)">
+      <node ref="U1" pin="21"/>
+    </net>
+    <net code="25" name="Net-(U1-Pad12)">
+      <node ref="U1" pin="12"/>
+    </net>
+    <net code="26" name="Net-(CON1-Pad3)">
+      <node ref="CON1" pin="3"/>
+    </net>
+    <net code="27" name="Net-(U1-Pad22)">
+      <node ref="U1" pin="22"/>
+    </net>
+    <net code="28" name="Net-(CON1-Pad1)">
+      <node ref="CON1" pin="1"/>
+    </net>
+    <net code="29" name="Net-(CON1-Pad2)">
+      <node ref="CON1" pin="2"/>
+    </net>
+    <net code="30" name="Net-(U1-Pad19)">
+      <node ref="U1" pin="19"/>
+    </net>
+    <net code="31" name="Net-(U1-Pad17)">
+      <node ref="U1" pin="17"/>
+    </net>
+    <net code="32" name="Net-(U1-Pad16)">
+      <node ref="U1" pin="16"/>
+    </net>
+    <net code="33" name="Net-(U1-Pad14)">
+      <node ref="U1" pin="14"/>
+    </net>
+    <net code="34" name="Net-(U1-Pad13)">
+      <node ref="U1" pin="13"/>
+    </net>
+    <net code="35" name="Net-(C_BST1-Pad2)">
+      <node ref="REG1" pin="1"/>
+      <node ref="C_BST1" pin="2"/>
+      <node ref="L1" pin="2"/>
+    </net>
+    <net code="36" name="Net-(C_BST1-Pad1)">
+      <node ref="REG1" pin="2"/>
+      <node ref="C_BST1" pin="1"/>
+    </net>
+    <net code="37" name="Net-(C_UP1-Pad1)">
+      <node ref="R_DW1" pin="2"/>
+      <node ref="C_UP1" pin="1"/>
+      <node ref="R_UP1" pin="1"/>
+      <node ref="REG1" pin="6"/>
+    </net>
+    <net code="38" name="Net-(L2-Pad2)">
+      <node ref="REG1" pin="7"/>
+      <node ref="L2" pin="2"/>
+    </net>
+    <net code="39" name="+BATT">
+      <node ref="C_VC1" pin="1"/>
+      <node ref="REG1" pin="4"/>
+      <node ref="REG1" pin="3"/>
+    </net>
+  </nets>
+</export>
