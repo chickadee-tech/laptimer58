@@ -1,7 +1,5 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
-#include <SPI.h>
-#include <SdFat.h>
 #include <EEPROM.h>
 
 // Wifi related globals.
@@ -12,22 +10,21 @@ const IPAddress MULTICAST_ADDRESS(239, 249, 134, 147);
 const uint16_t PORT = 59734;
 
 // Radio related globals.
-const unsigned int TUNE_TIME_MS = 30;
+const unsigned int TUNE_TIME_MS = 300; // 30
 
 // Cross-power up globals.
 const uint32_t EEPROM_VERSION = 1;
 
 #define RSSI_READS 10
 
-// SD Card related globals.
-SdFat sd;
-SdFile myFile;
-
-const int SD_CHIP_SELECT = 2;
+const int BOARD_LED = 0;
+const int ESP_LED = 2;
+const int SPEAKER = 14;
+const int ADC_SELECT = 12;
 
 const int RCV_CHIP_SELECT = 4;
-const int RCV_CLK = 16;
-const int RCV_DATA = 5;
+const int RCV_CLK = 5;
+const int RCV_DATA = 13;
 
 unsigned long lastReadTime;
 unsigned long lastTuneTime;
@@ -59,28 +56,19 @@ void setup() {
   EEPROM.put(8, fileCount + 1);
   EEPROM.end();
 
-  SPI.begin();
-
-  // Start a new file on the SDCARD.
-  sd.begin(SD_CHIP_SELECT, SPI_HALF_SPEED);
-
-  static char new_file_name[13];
-  sprintf_P(new_file_name, PSTR("LOG%05d.CKD"), fileCount);
-  
-  myFile.open(new_file_name, O_RDWR | O_CREAT | O_AT_END);
-  myFile.println("Chickadee 0.0.3");
-  myFile.print("Chip number: ");
-  myFile.println(chipId);
-  myFile.print("RSSI_READS: ");
-  myFile.println(RSSI_READS);
-  myFile.print("TUNE_TIME_MS: ");
-  myFile.println(TUNE_TIME_MS);
-
   // put your setup code here, to run once:
   pinMode(0, OUTPUT);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(SSID, PASSWORD);
   udp.beginMulticast(WiFi.softAPIP(), MULTICAST_ADDRESS, PORT);
+
+  // ADC_SELECT switches between measuring RSSI and battery voltage. v3 boards
+  // don't have the battery voltage divider hooked up so we just set it to the
+  // RSSI for good.
+  pinMode(ADC_SELECT, OUTPUT);
+  digitalWrite(ADC_SELECT, HIGH);
+
+  pinMode(BOARD_LED, OUTPUT);
 
   pinMode(RCV_DATA, OUTPUT);
   pinMode(RCV_CLK, OUTPUT);
@@ -102,6 +90,7 @@ uint16_t tuningFrequency = 0;
 uint16_t tunedFrequency = 0;
 
 void loop() {
+  digitalWrite(BOARD_LED, LOW);
   int i = 0;
   while (frequencies[i] != 0) {
     if (tunedFrequency != 0) {
@@ -118,19 +107,17 @@ void loop() {
       udp.write(packet, sizeof(packet));
       udp.endPacket();
 
-      myFile.write(packet, 9);
-      myFile.sync();
-      //Serial.print(lastReadTime);
-      //Serial.print(" ");
-      //Serial.print(tunedFrequency);
-      //Serial.print(" ");
-      //Serial.println(lastValue);
+      Serial.print(lastReadTime);
+      Serial.print(" ");
+      Serial.print(tunedFrequency);
+      Serial.print(" ");
+      Serial.println(lastValue);
     }
     if (tuningFrequency != 0) {
       if (tuningFrequency != tunedFrequency) {
         // Wait the remainder of the tune time if we actually had to tune.
         int delay_time = TUNE_TIME_MS - (millis() - lastTuneTime);
-        //Serial.println(delay_time);
+        Serial.println(delay_time);
         if (delay_time > 0) {
           delay(delay_time);
         }
@@ -156,6 +143,7 @@ void loop() {
     
     lastTuneTime = millis();
     i++;
+    digitalWrite(BOARD_LED, HIGH);
   }
 }
 
