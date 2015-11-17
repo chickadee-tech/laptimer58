@@ -49,7 +49,8 @@ var Chickadee = React.createClass({
   render: function() {
     Speech.speak({
       text: '3.5 volts',
-      voice: 'en-US'
+      voice: 'en-US',
+      rate: 0.5,
     });
     return (
       <View style={styles.container}>
