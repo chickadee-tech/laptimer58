@@ -15,7 +15,9 @@ const unsigned int TUNE_TIME_MS = 300; // 30
 // Cross-power up globals.
 const uint32_t EEPROM_VERSION = 1;
 
-#define RSSI_READS 10
+const uint16_t MAX_JOIN_DELAY = 15000;
+
+#define RSSI_READS 3 // used to be 10 but took 4ms
 
 const int BOARD_LED = 0;
 const int ESP_LED = 2;
@@ -26,8 +28,15 @@ const int RCV_CHIP_SELECT = 4;
 const int RCV_CLK = 5;
 const int RCV_DATA = 13;
 
+const int PACKET_TYPE_NEW_CLIENT = 1;
+// TODO(tannewt): Add a packet type for Laptimers to say hello and buddy up.
+
+int errorCode = -1;
+
 unsigned long lastReadTime;
 unsigned long lastTuneTime;
+
+IPAddress ourIp;
 
 WiFiUDP udp;
 
@@ -36,32 +45,22 @@ void setup() {
   delay(10);
 
   uint32_t chipId = ESP.getChipId();
-  Serial.println(chipId);
+  //Serial.println(chipId);
 
   // Get our file counter.
   EEPROM.begin(12);
   uint32_t storedChipId;
   EEPROM.get(0, storedChipId);
-  Serial.println(storedChipId);
-  uint32_t fileCount = 0;
+  //Serial.println(storedChipId);
   // Initialize the eeprom completely.
   if (storedChipId != chipId) {
     EEPROM.put(0, chipId);
     EEPROM.put(4, EEPROM_VERSION);
-    EEPROM.put(8, fileCount);
-  } else {
-    EEPROM.get(8, fileCount);
-    Serial.println(fileCount);
   }
-  EEPROM.put(8, fileCount + 1);
   EEPROM.end();
 
-  // put your setup code here, to run once:
   pinMode(0, OUTPUT);
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(SSID, PASSWORD);
-  udp.beginMulticast(WiFi.softAPIP(), MULTICAST_ADDRESS, PORT);
-
+  
   // ADC_SELECT switches between measuring RSSI and battery voltage. v3 boards
   // don't have the battery voltage divider hooked up so we just set it to the
   // RSSI for good.
@@ -73,13 +72,53 @@ void setup() {
   pinMode(RCV_DATA, OUTPUT);
   pinMode(RCV_CLK, OUTPUT);
   pinMode(RCV_CHIP_SELECT, OUTPUT);
+
+  // Scan for an existing network.
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(100);
+
+  int network_count = WiFi.scanNetworks();
+
+  bool found_network = false;
+  for (int i = 0; i < network_count; i++) {
+    found_network = String(WiFi.SSID(i)).equals(String(SSID));
+    if (found_network) {
+      break;
+    }
+  }
+
+  if (!found_network) {
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP(SSID, PASSWORD);
+    ourIp = WiFi.softAPIP();
+    Serial.println("Created network");
+  } else {
+    WiFi.begin(SSID, PASSWORD);
+    uint16 total_delay = 0;
+    while (WiFi.status() != WL_CONNECTED && total_delay < MAX_JOIN_DELAY) {
+      delay(100);
+      total_delay += 100;
+    }
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("WiFi join failed.");
+      WiFi.printDiag(Serial);
+      errorCode = 1;
+      return;
+    } else {
+      Serial.println("Joined existing network.");
+    }
+    ourIp = WiFi.localIP();
+  }
+  Serial.println(ourIp);
+  udp.beginMulticast(ourIp, MULTICAST_ADDRESS, PORT);
 }
 
 // One iteration byte to detect missed packets.
 // Four bytes for the time.
 // Two bytes for the frequency.
 // Two bytes for the strength.
-char packet[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t packet[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 uint8_t packetNo = 0;
 uint16_t frequencies[] = {5800, 5740, 0, 0, 0, 0, 0};
@@ -89,12 +128,91 @@ bool increasing = true;
 uint16_t tuningFrequency = 0;
 uint16_t tunedFrequency = 0;
 
+const int MAX_CLIENTS = 4;
+WiFiClient clients[MAX_CLIENTS];
+uint8_t numClients = 0;
+
 void loop() {
+  // Handle errors by flashing/beeping an error code.
+  if (errorCode > 0) {
+    digitalWrite(BOARD_LED, LOW);
+    delay(100);
+    digitalWrite(BOARD_LED, HIGH);
+    delay(75);
+    digitalWrite(BOARD_LED, LOW);
+    delay(100);
+    digitalWrite(BOARD_LED, HIGH);
+    delay(150);
+    for (int i = 0; i < errorCode; i++) {
+      digitalWrite(BOARD_LED, LOW);
+      delay(350);
+      digitalWrite(BOARD_LED, HIGH);
+      delay(150);
+    }
+    delay(1000);
+    return;
+  }
+
+  // Read any UDP hello packets we've received.
+  while (udp.parsePacket() > 0) {
+    Serial.print("Got udp packet of length ");
+    Serial.println(udp.available());
+
+    int packet_type = udp.read();
+    if (packet_type == PACKET_TYPE_NEW_CLIENT) {
+      udp.read();
+      uint16_t tcp_port = ((uint16_t) udp.read());
+      Serial.println(tcp_port);
+      tcp_port = tcp_port | ((uint16_t) udp.read()) << 8;
+      Serial.println(tcp_port);
+
+      IPAddress new_client_ip = udp.remoteIP();
+      bool client_exists = false;
+      for (int j = 0; j < numClients; j++) {
+        if (clients[j].remoteIP() == new_client_ip) {
+          client_exists = true;
+          break;
+        }
+      }
+
+      if (!client_exists) {
+        if (numClients == MAX_CLIENTS) {
+          errorCode = 2;
+          return;
+        }
+        if (clients[numClients].connect(new_client_ip, tcp_port)) {
+          numClients += 1;
+        } else {
+          Serial.print("Failed to create client to ");
+          Serial.print(new_client_ip);
+          Serial.print(" ");
+          Serial.println(tcp_port);
+        }
+      }
+    }
+
+//      udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
+//      packet[0] = packetNo++;
+//      packet[1] = (char) (lastReadTime >> 24);
+//      packet[2] = (char) (lastReadTime >> 16);
+//      packet[3] = (char) (lastReadTime >> 8);
+//      packet[4] = (char) lastReadTime;
+//      packet[5] = (char) (tunedFrequency >> 8);
+//      packet[6] = (char) tunedFrequency;
+//      packet[7] = (char) (lastValue >> 8);
+//      packet[8] = lastValue;
+//      udp.write(packet, sizeof(packet));
+//      udp.endPacket();
+    udp.flush();
+  }
+
+  // TODO(tannewt): Garbage collect stale WiFi clients so we can reuse them.
+
+  // Turn on the LED to show we're working but only for the first frequency read.
   digitalWrite(BOARD_LED, LOW);
   int i = 0;
   while (frequencies[i] != 0) {
     if (tunedFrequency != 0) {
-      udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, WiFi.softAPIP());
       packet[0] = packetNo++;
       packet[1] = (char) (lastReadTime >> 24);
       packet[2] = (char) (lastReadTime >> 16);
@@ -104,20 +222,22 @@ void loop() {
       packet[6] = (char) tunedFrequency;
       packet[7] = (char) (lastValue >> 8);
       packet[8] = lastValue;
-      udp.write(packet, sizeof(packet));
-      udp.endPacket();
-
-      Serial.print(lastReadTime);
-      Serial.print(" ");
-      Serial.print(tunedFrequency);
-      Serial.print(" ");
-      Serial.println(lastValue);
+      for (int j = 0; j < numClients; j++) {
+        // TODO(tannewt): Use something else. This blocks on receiving a TCP ack!
+        clients[j].write((const uint8_t *)packet, sizeof(packet));
+      }
+      
+//      Serial.print(lastReadTime);
+//      Serial.print(" ");
+//      Serial.print(tunedFrequency);
+//      Serial.print(" ");
+//      Serial.println(lastValue);
     }
     if (tuningFrequency != 0) {
       if (tuningFrequency != tunedFrequency) {
         // Wait the remainder of the tune time if we actually had to tune.
         int delay_time = TUNE_TIME_MS - (millis() - lastTuneTime);
-        Serial.println(delay_time);
+        //Serial.println(delay_time);
         if (delay_time > 0) {
           delay(delay_time);
         }
