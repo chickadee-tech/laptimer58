@@ -10,7 +10,7 @@ const IPAddress MULTICAST_ADDRESS(239, 249, 134, 147);
 const uint16_t PORT = 59734;
 
 // Radio related globals.
-const unsigned int TUNE_TIME_MS = 300; // 30
+const unsigned int TUNE_TIME_MS = 30; // 30
 
 // Cross-power up globals.
 const uint32_t EEPROM_VERSION = 1;
@@ -28,8 +28,8 @@ const int RCV_CHIP_SELECT = 4;
 const int RCV_CLK = 5;
 const int RCV_DATA = 13;
 
-const int PACKET_TYPE_NEW_CLIENT = 1;
-// TODO(tannewt): Add a packet type for Laptimers to say hello and buddy up.
+const uint8_t PACKET_TYPE_NEW_CLIENT = 1;
+const uint8_t PACKET_TYPE_NEW_PEER = 2;
 
 int errorCode = -1;
 
@@ -39,6 +39,13 @@ unsigned long lastTuneTime;
 IPAddress ourIp;
 
 WiFiUDP udp;
+
+// If we are the AP we must also forward packets from peers to clients.
+#define TCP_SERVER_PORT 59736
+WiFiServer server(TCP_SERVER_PORT);
+
+
+uint8_t controlPacket[] = {0, 0, 0, 0};
 
 void setup() {
   Serial.begin(115200);
@@ -92,7 +99,10 @@ void setup() {
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(SSID, PASSWORD);
     ourIp = WiFi.softAPIP();
+
+    server.begin();
     Serial.println("Created network");
+    Serial.println(server.status());
   } else {
     WiFi.begin(SSID, PASSWORD);
     uint16 total_delay = 0;
@@ -101,24 +111,28 @@ void setup() {
       total_delay += 100;
     }
     if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("WiFi join failed.");
+      //Serial.println("WiFi join failed.");
       WiFi.printDiag(Serial);
       errorCode = 1;
       return;
     } else {
-      Serial.println("Joined existing network.");
+      //Serial.println("Joined existing network.");
     }
     ourIp = WiFi.localIP();
   }
-  Serial.println(ourIp);
+  //Serial.println(ourIp);
   udp.beginMulticast(ourIp, MULTICAST_ADDRESS, PORT);
+  udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
+  controlPacket[0] = PACKET_TYPE_NEW_PEER;
+  udp.write(controlPacket, sizeof(controlPacket));
+  udp.endPacket();
 }
 
 // One iteration byte to detect missed packets.
 // Four bytes for the time.
 // Two bytes for the frequency.
 // Two bytes for the strength.
-uint8_t packet[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+uint8_t packet_size = 9;
 
 uint8_t packetNo = 0;
 uint16_t frequencies[] = {5800, 5740, 0, 0, 0, 0, 0};
@@ -131,6 +145,17 @@ uint16_t tunedFrequency = 0;
 const int MAX_CLIENTS = 4;
 WiFiClient clients[MAX_CLIENTS];
 uint8_t numClients = 0;
+
+const int MAX_PEERS = 4;
+WiFiClient peer[MAX_PEERS];
+uint8_t numPeers = 0;
+
+#define WIFI_MTU 1400 // buffer writes to the tcp connection to minimize tcp overhead
+
+uint8_t tcp_client_buffer[WIFI_MTU * MAX_CLIENTS];
+uint16_t tcp_client_buffer_size[MAX_CLIENTS];
+
+uint8_t tcp_server_buffer[WIFI_MTU];
 
 void loop() {
   // Handle errors by flashing/beeping an error code.
@@ -153,6 +178,26 @@ void loop() {
     return;
   }
 
+  // Accept any new peers.
+  WiFiClient newPeer = server.available();
+  while (newPeer && numPeers < MAX_PEERS) {
+    Serial.println("Accepted new peer tcp socket.");
+    peer[numPeers] = newPeer;
+    numPeers++;
+    newPeer = server.available();
+  }
+
+  // Forward any tcp packets we've received to all of our clients.
+  for (int i = 0; i < numPeers; i++) {
+    if (peer[i].available()) {
+      Serial.println("New peer tcp");
+      uint16_t read_size = peer[i].read(tcp_server_buffer, WIFI_MTU);
+      for (int j = 0; j < numClients; j++) {
+        clients[j].write((const uint8_t *) tcp_server_buffer, read_size);
+      }
+    }
+  }
+
   // Read any UDP hello packets we've received.
   while (udp.parsePacket() > 0) {
     Serial.print("Got udp packet of length ");
@@ -162,9 +207,7 @@ void loop() {
     if (packet_type == PACKET_TYPE_NEW_CLIENT) {
       udp.read();
       uint16_t tcp_port = ((uint16_t) udp.read());
-      Serial.println(tcp_port);
       tcp_port = tcp_port | ((uint16_t) udp.read()) << 8;
-      Serial.println(tcp_port);
 
       IPAddress new_client_ip = udp.remoteIP();
       bool client_exists = false;
@@ -181,14 +224,39 @@ void loop() {
           return;
         }
         if (clients[numClients].connect(new_client_ip, tcp_port)) {
+          // We prefix our packets with the chip id so it can be differentiated from our peers.
+          uint32_t chip_id = ESP.getChipId();
+          uint16_t base_offset = WIFI_MTU * numClients;
+          tcp_client_buffer[base_offset] = (char) (chip_id >> 24);
+          tcp_client_buffer[base_offset + 1] = (char) (chip_id >> 16);
+          tcp_client_buffer[base_offset + 2] = (char) (chip_id >> 8);
+          tcp_client_buffer[base_offset + 3] = (char) chip_id;
+          tcp_client_buffer_size[numClients] = 4;
+          
           numClients += 1;
+
+          // Request new client to our peers if we are the AP.
+          if (server.status() == LISTEN) {
+            Serial.println("Requesting peers to client up.");
+            udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
+            controlPacket[0] = PACKET_TYPE_NEW_CLIENT;
+            controlPacket[1] = 0;
+            controlPacket[2] = TCP_SERVER_PORT & 0xff;
+            controlPacket[3] = TCP_SERVER_PORT >> 8;
+            udp.write(controlPacket, sizeof(controlPacket));
+            udp.endPacket();    
+          }
         } else {
-          Serial.print("Failed to create client to ");
-          Serial.print(new_client_ip);
-          Serial.print(" ");
-          Serial.println(tcp_port);
+//          Serial.print("Failed to create client to ");
+//          Serial.print(new_client_ip);
+//          Serial.print(" ");
+//          Serial.println(tcp_port);
         }
       }
+    } else if (packet_type == PACKET_TYPE_NEW_PEER) {
+      IPAddress new_peer_ip = udp.remoteIP();
+      Serial.print("New peer ");
+      Serial.println(new_peer_ip);
     }
 
 //      udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
@@ -213,18 +281,25 @@ void loop() {
   int i = 0;
   while (frequencies[i] != 0) {
     if (tunedFrequency != 0) {
-      packet[0] = packetNo++;
-      packet[1] = (char) (lastReadTime >> 24);
-      packet[2] = (char) (lastReadTime >> 16);
-      packet[3] = (char) (lastReadTime >> 8);
-      packet[4] = (char) lastReadTime;
-      packet[5] = (char) (tunedFrequency >> 8);
-      packet[6] = (char) tunedFrequency;
-      packet[7] = (char) (lastValue >> 8);
-      packet[8] = lastValue;
+      packetNo++;
       for (int j = 0; j < numClients; j++) {
-        // TODO(tannewt): Use something else. This blocks on receiving a TCP ack!
-        clients[j].write((const uint8_t *)packet, sizeof(packet));
+        uint16_t base_offset = WIFI_MTU * j + tcp_client_buffer_size[j];
+        tcp_client_buffer[base_offset] = packetNo;
+        tcp_client_buffer[base_offset + 1] = (char) (lastReadTime >> 24);
+        tcp_client_buffer[base_offset + 2] = (char) (lastReadTime >> 16);
+        tcp_client_buffer[base_offset + 3] = (char) (lastReadTime >> 8);
+        tcp_client_buffer[base_offset + 4] = (char) lastReadTime;
+        tcp_client_buffer[base_offset + 5] = (char) (tunedFrequency >> 8);
+        tcp_client_buffer[base_offset + 6] = (char) tunedFrequency;
+        tcp_client_buffer[base_offset + 7] = (char) (lastValue >> 8);
+        tcp_client_buffer[base_offset + 8] = lastValue;
+        tcp_client_buffer_size[j] += packet_size;
+        if (WIFI_MTU - tcp_client_buffer_size[j] < packet_size) {
+          // TODO(tannewt): Use something else. This blocks on receiving a TCP ack!
+          clients[j].write(((const uint8_t *)tcp_client_buffer) + WIFI_MTU * j, tcp_client_buffer_size[j]);
+          // Reset back to 4 buffer size because the first four bytes are chip id.
+          tcp_client_buffer_size[j] = 4;
+        }
       }
       
 //      Serial.print(lastReadTime);

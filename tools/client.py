@@ -6,7 +6,7 @@ import time
 MULTICAST_PORT = 59734
 TCP_PORT = 59735
 MULTICAST_ADDRESS = "239.249.134.147"
-BUFFER_SIZE = 2**8
+BUFFER_SIZE = 2**12
 
 NEW_CLIENT_PERIOD = 60
 
@@ -38,15 +38,21 @@ tcp_socket.bind(('', TCP_PORT))
 tcp_socket.listen(2)
 print("Listening for connections")
 
+bad_gaps = {}
 last_new_client = None
-last_timestamp = None
+last_timestamp = {}
+first_timestamp = {}
 quit = False
 chickadees = []
 while not quit:
   if not last_new_client or time.clock() - last_new_client > NEW_CLIENT_PERIOD:
     udp_socket.sendto(struct.pack("bH", 1, TCP_PORT), (MULTICAST_ADDRESS, MULTICAST_PORT))
     last_new_client = time.clock()
-  readable, writable, errored = select.select([tcp_socket] + chickadees, [], [], NEW_CLIENT_PERIOD)
+  try:
+    readable, writable, errored = select.select([tcp_socket] + chickadees, [], [], NEW_CLIENT_PERIOD)
+  except KeyboardInterrupt:
+    quit = True
+    continue
   for chickadee in readable:
     if chickadee is tcp_socket:
       chickadee, address = tcp_socket.accept()
@@ -57,15 +63,30 @@ while not quit:
       data = chickadee.recv(BUFFER_SIZE)
     except:
       quit = True
-    iteration, timestamp, frequency, strength = struct.unpack(">BIHH", data)
-    if last_timestamp:
-      pass
-      #print(timestamp - last_timestamp, chickadee.getpeername())
-    last_timestamp = timestamp
+      break
+    chip_id = struct.unpack(">I", data[:4])[0]
+    if chip_id not in bad_gaps:
+      bad_gaps[chip_id] = []
+      last_timestamp[chip_id] = None
+      first_timestamp[chip_id] = None
+    print(chip_id, (len(data) - 4) / 9)
+    for i in range((len(data) - 4) / 9):
+      iteration, timestamp, frequency, strength = struct.unpack(">BIHH", data[i * 9 + 4 : (i+1) * 9 + 4])
+      #print(iteration, timestamp, frequency, strength)
+      if last_timestamp[chip_id]:
+        if timestamp - last_timestamp[chip_id] > 30 + 4:
+          bad_gaps[chip_id].append(timestamp - last_timestamp[chip_id])
+      last_timestamp[chip_id] = timestamp
+      if not first_timestamp[chip_id]:
+        first_timestamp[chip_id] = timestamp
+
+    print(sum(bad_gaps[chip_id]) * 100. / (timestamp - first_timestamp[chip_id]))
 
 for chickadee in chickadees:
   chickadee.close()
 
 # disconnect from the group
-s.setsockopt(socket.SOL_IP, socket.IP_DROP_MEMBERSHIP, socket.inet_aton(MULTICAST_ADDRESS) + socket.inet_aton('0.0.0.0'))
-s.close()
+udp_socket.setsockopt(socket.SOL_IP, socket.IP_DROP_MEMBERSHIP, socket.inet_aton(MULTICAST_ADDRESS) + socket.inet_aton('0.0.0.0'))
+udp_socket.close()
+
+tcp_socket.close()
