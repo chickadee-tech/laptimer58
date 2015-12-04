@@ -1,4 +1,4 @@
-update=Sunday, November 08, 2015 'PMt' 02:31:28 PM
+update=Tuesday, December 01, 2015 'PMt' 09:52:38 PM
 version=1
 last_client=kicad
 [pcbnew]
@@ -33,8 +33,6 @@ NetFmtName=
 SpiceForceRefPrefix=0
 SpiceUseNetNumbers=0
 LabSize=60
-[general]
-version=1
 [eeschema]
 version=1
 LibDir=/Users/tannewt/kicad/libraries;../../shared/kicad/libraries/public/components
@@ -123,3 +121,5 @@ LibName81=ap7333
 LibName82=cmt-1603-smt-tr
 LibName83=74lvc1g3157
 LibName84=bd93291efj
+[general]
+version=1
