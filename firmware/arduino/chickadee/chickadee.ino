@@ -31,6 +31,13 @@ const int RCV_DATA = 13;
 const uint8_t PACKET_TYPE_NEW_CLIENT = 1;
 const uint8_t PACKET_TYPE_NEW_PEER = 2;
 
+const uint8_t PEER_LED_ON_CYCLE_COUNT = 2;
+const uint8_t PEER_LED_BREAK_CYCLE_COUNT = 20;
+
+const uint8_t ERROR_NO_WIFI = 1;
+const uint8_t ERROR_MAX_CLIENTS = 2;
+const uint8_t ERROR_MAX_PEERS = 3;
+
 int errorCode = -1;
 
 unsigned long lastReadTime;
@@ -43,7 +50,6 @@ WiFiUDP udp;
 // If we are the AP we must also forward packets from peers to clients.
 #define TCP_SERVER_PORT 59736
 WiFiServer server(TCP_SERVER_PORT);
-
 
 uint8_t controlPacket[] = {0, 0, 0, 0};
 
@@ -76,6 +82,9 @@ void setup() {
 
   pinMode(BOARD_LED, OUTPUT);
 
+  pinMode(ESP_LED, OUTPUT);
+  digitalWrite(ESP_LED, HIGH);
+
   pinMode(RCV_DATA, OUTPUT);
   pinMode(RCV_CLK, OUTPUT);
   pinMode(RCV_CHIP_SELECT, OUTPUT);
@@ -100,9 +109,7 @@ void setup() {
     WiFi.softAP(SSID, PASSWORD);
     ourIp = WiFi.softAPIP();
 
-    server.begin();
     Serial.println("Created network");
-    Serial.println(server.status());
   } else {
     WiFi.begin(SSID, PASSWORD);
     uint16 total_delay = 0;
@@ -113,17 +120,21 @@ void setup() {
     if (WiFi.status() != WL_CONNECTED) {
       //Serial.println("WiFi join failed.");
       WiFi.printDiag(Serial);
-      errorCode = 1;
+      errorCode = ERROR_NO_WIFI;
       return;
-    } else {
-      //Serial.println("Joined existing network.");
     }
+    
+    Serial.println("Joined existing network.");
+    server.begin();
     ourIp = WiFi.localIP();
   }
   //Serial.println(ourIp);
   udp.beginMulticast(ourIp, MULTICAST_ADDRESS, PORT);
   udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
   controlPacket[0] = PACKET_TYPE_NEW_PEER;
+  controlPacket[1] = 0;
+  controlPacket[2] = TCP_SERVER_PORT & 0xff;
+  controlPacket[3] = TCP_SERVER_PORT >> 8;
   udp.write(controlPacket, sizeof(controlPacket));
   udp.endPacket();
 }
@@ -142,10 +153,12 @@ bool increasing = true;
 uint16_t tuningFrequency = 0;
 uint16_t tunedFrequency = 0;
 
+// Clients are devices that want to get the data streamed back to them.
 const int MAX_CLIENTS = 4;
 WiFiClient clients[MAX_CLIENTS];
 uint8_t numClients = 0;
 
+// Only the AP node has peers. They are other devices that wish to send their data to the clients of the AP.
 const int MAX_PEERS = 4;
 WiFiClient peer[MAX_PEERS];
 uint8_t numPeers = 0;
@@ -155,7 +168,9 @@ uint8_t numPeers = 0;
 uint8_t tcp_client_buffer[WIFI_MTU * MAX_CLIENTS];
 uint16_t tcp_client_buffer_size[MAX_CLIENTS];
 
-uint8_t tcp_server_buffer[WIFI_MTU];
+uint8_t tcp_forward_buffer[WIFI_MTU];
+
+uint8_t peerLedCycle = 0;
 
 void loop() {
   // Handle errors by flashing/beeping an error code.
@@ -178,22 +193,29 @@ void loop() {
     return;
   }
 
-  // Accept any new peers.
-  WiFiClient newPeer = server.available();
-  while (newPeer && numPeers < MAX_PEERS) {
-    Serial.println("Accepted new peer tcp socket.");
-    peer[numPeers] = newPeer;
-    numPeers++;
-    newPeer = server.available();
-  }
-
-  // Forward any tcp packets we've received to all of our clients.
-  for (int i = 0; i < numPeers; i++) {
-    if (peer[i].available()) {
-      Serial.println("New peer tcp");
-      uint16_t read_size = peer[i].read(tcp_server_buffer, WIFI_MTU);
-      for (int j = 0; j < numClients; j++) {
-        clients[j].write((const uint8_t *) tcp_server_buffer, read_size);
+  if (server.status() == LISTEN) {
+    // Accept any new clients.
+    WiFiClient newClient = server.available();
+    while (newClient && numClients < MAX_CLIENTS) {
+      Serial.println("Accepted new client tcp socket.");
+      clients[numClients] = newClient;
+      numClients++;
+      newClient = server.available();
+    }
+    if (numClients > 0) {
+      digitalWrite(ESP_LED, LOW);
+    } else {
+      digitalWrite(ESP_LED, HIGH);
+    }
+  } else {
+    // Forward any tcp packets we've received to all of our clients.
+    for (int i = 0; i < numPeers; i++) {
+      if (peer[i].available()) {
+        uint16_t read_size = peer[i].read(tcp_forward_buffer, WIFI_MTU);
+        Serial.println(read_size);
+        for (int j = 0; j < numClients; j++) {
+          clients[j].write((const uint8_t *) tcp_forward_buffer, read_size);
+        }
       }
     }
   }
@@ -220,7 +242,7 @@ void loop() {
 
       if (!client_exists) {
         if (numClients == MAX_CLIENTS) {
-          errorCode = 2;
+          errorCode = ERROR_MAX_CLIENTS;
           return;
         }
         if (clients[numClients].connect(new_client_ip, tcp_port)) {
@@ -233,19 +255,9 @@ void loop() {
           tcp_client_buffer[base_offset + 3] = (char) chip_id;
           tcp_client_buffer_size[numClients] = 4;
           
-          numClients += 1;
+          numClients++;
 
           // Request new client to our peers if we are the AP.
-          if (server.status() == LISTEN) {
-            Serial.println("Requesting peers to client up.");
-            udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
-            controlPacket[0] = PACKET_TYPE_NEW_CLIENT;
-            controlPacket[1] = 0;
-            controlPacket[2] = TCP_SERVER_PORT & 0xff;
-            controlPacket[3] = TCP_SERVER_PORT >> 8;
-            udp.write(controlPacket, sizeof(controlPacket));
-            udp.endPacket();    
-          }
         } else {
 //          Serial.print("Failed to create client to ");
 //          Serial.print(new_client_ip);
@@ -254,9 +266,33 @@ void loop() {
         }
       }
     } else if (packet_type == PACKET_TYPE_NEW_PEER) {
+      udp.read();
+      uint16_t tcp_port = ((uint16_t) udp.read());
+      tcp_port = tcp_port | ((uint16_t) udp.read()) << 8;
+ 
       IPAddress new_peer_ip = udp.remoteIP();
-      Serial.print("New peer ");
-      Serial.println(new_peer_ip);
+      if (server.status() != LISTEN) {
+        int peer_index = -1;
+        for (int j = 0; j < numPeers; j++) {
+          if (peer[j].remoteIP() == new_peer_ip) {
+            peer_index = j;
+            break;
+          }
+        }
+
+        if (numPeers == MAX_PEERS && peer_index == -1) {
+          errorCode = ERROR_MAX_PEERS;
+          return;
+        }
+
+        if (peer_index == -1) {
+          peer_index = numPeers;
+        }
+
+        if (peer[peer_index].connect(new_peer_ip, tcp_port)) {
+          numPeers++;
+        }
+      }
     }
 
 //      udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
@@ -339,6 +375,23 @@ void loop() {
     lastTuneTime = millis();
     i++;
     digitalWrite(BOARD_LED, HIGH);
+
+    // If we are the AP, then blink the ESP LED to indicate the number of connected peers.
+    if (server.status() != LISTEN) {
+      if (numPeers > 0 && peerLedCycle <= PEER_LED_ON_CYCLE_COUNT * 2 * numPeers && peerLedCycle % PEER_LED_ON_CYCLE_COUNT == 0) {
+        uint8_t i = peerLedCycle / PEER_LED_ON_CYCLE_COUNT;
+        if (i % 2 == 0) {
+          digitalWrite(ESP_LED, HIGH);
+        } else {
+          digitalWrite(ESP_LED, LOW);
+        }
+      }
+      if (peerLedCycle == PEER_LED_ON_CYCLE_COUNT * 2 * numPeers + PEER_LED_BREAK_CYCLE_COUNT) {
+        peerLedCycle = 0;
+      }  else {
+        peerLedCycle++;
+      }
+    }
   }
 }
 
