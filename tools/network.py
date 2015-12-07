@@ -83,7 +83,8 @@ class Network(multiprocessing.Process):
         for i in range((len(data) - 4) / 9):
           iteration, timestamp, frequency, strength = struct.unpack(">BIHH", data[i * 9 + 4 : (i+1) * 9 + 4])
           frame_group.add_frame(Frame(iteration, timestamp, frequency, strength))
-          #print(iteration, timestamp, frequency, strength)
+          if i == 0:
+           print(iteration, timestamp, frequency, strength)
           if last_timestamp[chip_id]:
             if timestamp - last_timestamp[chip_id] > 30 + 4:
               bad_gaps[chip_id].append(timestamp - last_timestamp[chip_id])
