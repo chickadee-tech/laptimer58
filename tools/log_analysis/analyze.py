@@ -3,7 +3,7 @@ from __future__ import print_function
 
 import argparse
 
-
+import json
 import math
 import struct
 import sys
@@ -111,31 +111,48 @@ for fn in [args.ckd_one, args.ckd_two]:
   this_data = {}
   split_data.append(this_data)
   with open(fn, "r") as f:
-    header = f.readline().strip()
-    name, version = header.split()
-    extra_headers = 0
-    if version == "0.0.2":
-      extra_headers = 1
-    elif version == "0.0.3":
-      extra_headers = 3
-    for x in xrange(extra_headers):
-      print(f.readline().strip())
-    packet = f.read(9)
-    while len(packet) == 9:
-      i, timestamp, frequency, strength = struct.unpack(">BIHH", packet)
-      if frequency != 5800:
-        packet = f.read(9)
-        continue
-
-      if frequency not in this_data:
-        this_data[frequency] = [[], []]
-      this_data[frequency][0].append(shift + timestamp)
-      this_data[frequency][1].append(strength * scale)
-      if not start_time:
-        start_time = timestamp
-      end_time = timestamp
-      total_samples += 1
+    if fn.endswith("CKD"):
+      header = f.readline().strip()
+      name, version = header.split()
+      extra_headers = 0
+      if version == "0.0.2":
+        extra_headers = 1
+      elif version == "0.0.3":
+        extra_headers = 3
+      for x in xrange(extra_headers):
+        print(f.readline().strip())
       packet = f.read(9)
+      while len(packet) == 9:
+        i, timestamp, frequency, strength = struct.unpack(">BIHH", packet)
+        if frequency != 5800:
+          packet = f.read(9)
+          continue
+
+        if frequency not in this_data:
+          this_data[frequency] = [[], []]
+        this_data[frequency][0].append(shift + timestamp)
+        this_data[frequency][1].append(strength * scale)
+        if not start_time:
+          start_time = timestamp
+        end_time = timestamp
+        total_samples += 1
+        packet = f.read(9)
+    elif fn.endswith("json"):
+      o = json.load(f)
+      for group in o["frame_groups"]:
+        for frame in group["frames"]:
+          i = frame["iteration"]
+          timestamp = frame["timestamp"]
+          frequency = frame["frequency"]
+          strength = frame["strength"]
+          if frequency != 5800:
+            continue
+
+          if frequency not in this_data:
+            this_data[frequency] = [[], []]
+          this_data[frequency][0].append(shift + timestamp)
+          this_data[frequency][1].append(strength * scale)
+
 smoothed = []
 for frequency_data in split_data:
   for frequency in frequency_data:
@@ -144,6 +161,7 @@ for frequency_data in split_data:
     #smoothed = scipy.signal.savgol_filter(strengths, 21, 3)
     smoothed = scipy.signal.savgol_filter(strengths, 21, 2)
     frequency_data[frequency][1] = smoothed
+    plt.plot(frequency_data[frequency][0], strengths, ",")
     plt.plot(frequency_data[frequency][0], smoothed)
     #smoothed = strengths
 
