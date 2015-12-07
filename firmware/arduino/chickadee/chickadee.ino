@@ -58,7 +58,7 @@ void setup() {
   delay(10);
 
   uint32_t chipId = ESP.getChipId();
-  //Serial.println(chipId);
+  Serial.println(chipId);
 
   // Get our file counter.
   EEPROM.begin(12);
@@ -76,7 +76,7 @@ void setup() {
   
   // ADC_SELECT switches between measuring RSSI and battery voltage. v3 boards
   // don't have the battery voltage divider hooked up so we just set it to the
-  // RSSI for good.
+  // RSSI for good. LOW is the battery voltage.
   pinMode(ADC_SELECT, OUTPUT);
   digitalWrite(ADC_SELECT, HIGH);
 
@@ -256,8 +256,6 @@ void loop() {
           tcp_client_buffer_size[numClients] = 4;
           
           numClients++;
-
-          // Request new client to our peers if we are the AP.
         } else {
 //          Serial.print("Failed to create client to ");
 //          Serial.print(new_client_ip);
@@ -361,6 +359,7 @@ void loop() {
         lastValue += analogRead(A0);
       }
       lastValue = lastValue / RSSI_READS;
+      Serial.println(lastValue);
       //Serial.print(tunedFrequency);
       //Serial.print(" ");
       //Serial.println(lastValue);
