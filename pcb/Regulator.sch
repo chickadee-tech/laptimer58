@@ -365,4 +365,12 @@ F 3 "" H 4000 3150 60  0000 C CNN
 	1    4000 3150
 	1    0    0    -1  
 $EndComp
+Text Notes 8100 7050 0    60   ~ 0
+Creative Commons Attribution-ShareAlike 4.0 International License
+Text Notes 10000 6900 0    60   ~ 0
+(c) 2015 Scott Shawcroft
+Text Notes 9750 6750 0    118  ~ 0
+Laptimer 5.8 v4
+Text Notes 8300 7350 0    118  ~ 0
+https://chickadee.tech/lt58/v4
 $EndSCHEMATC

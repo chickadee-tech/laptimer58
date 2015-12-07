@@ -1,4 +1,4 @@
-update=Tuesday, December 01, 2015 'PMt' 09:52:38 PM
+update=Monday, December 07, 2015 'PMt' 03:43:51 PM
 version=1
 last_client=kicad
 [pcbnew]
@@ -23,16 +23,6 @@ ModuleOutlineThickness=0.150000000000
 [cvpcb]
 version=1
 NetIExt=net
-[schematic_editor]
-version=1
-PageLayoutDescrFile=
-PlotDirectoryName=
-SubpartIdSeparator=0
-SubpartFirstId=65
-NetFmtName=
-SpiceForceRefPrefix=0
-SpiceUseNetNumbers=0
-LabSize=60
 [eeschema]
 version=1
 LibDir=/Users/tannewt/kicad/libraries;../../shared/kicad/libraries/public/components
@@ -123,3 +113,13 @@ LibName83=74lvc1g3157
 LibName84=bd93291efj
 [general]
 version=1
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=118

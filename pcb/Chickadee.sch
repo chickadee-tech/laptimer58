@@ -760,4 +760,12 @@ Wire Wire Line
 Wire Wire Line
 	7700 3700 7700 3750
 Connection ~ 8000 3500
+Text Notes 8050 7100 0    60   ~ 0
+Creative Commons Attribution-ShareAlike 4.0 International License
+Text Notes 9950 6950 0    60   ~ 0
+(c) 2015 Scott Shawcroft
+Text Notes 9700 6800 0    118  ~ 0
+Laptimer 5.8 v4
+Text Notes 8250 7350 0    118  ~ 0
+https://chickadee.tech/lt58/v4
 $EndSCHEMATC

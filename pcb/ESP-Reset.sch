@@ -265,4 +265,14 @@ F 3 "" H 7500 3550 60  0000 C CNN
 	1    7500 3550
 	1    0    0    -1  
 $EndComp
+Text Notes 7750 7050 0    60   ~ 0
+Creative Commons CC-0 from https://github.com/baoshi/ESP-Breakout
+Text Notes 9950 6900 0    60   ~ 0
+(c) 2015 Scott Shawcroft
+Text Notes 9700 6750 0    118  ~ 0
+Laptimer 5.8 v4
+Text Notes 4550 2750 0    118  ~ 0
+This circuit uses one button to both reset\nthe ESP-12 after a short press and reset it\nto the bootloader after a long press. The\norange LED will light up bright if the reset\nwill lead to the bootloader. Once it the\nbootloader, the led will be dimly lit.
+Text Notes 8250 7350 0    118  ~ 0
+https://chickadee.tech/lt58/v4
 $EndSCHEMATC
