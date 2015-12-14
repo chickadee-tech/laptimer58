@@ -7,8 +7,9 @@
   },
   "dependencies": {
     "buffer": "^3.4.3",
-    "react-native": "^0.12.0",
-    "react-native-speech": "file:../../../../react-native-speech",
+    "ml-savitzky-golay": "^2.0.0",
+    "react-native": "^0.16.0",
+    "react-native-speech": "^0.1.1",
     "react-native-udp": "^1.0.3"
   },
   "devDependencies": {
