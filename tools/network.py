@@ -13,6 +13,8 @@ BUFFER_SIZE = 2**12
 
 NEW_CLIENT_PERIOD = 60
 
+PACKET_TYPE_I_AM_AP = 3
+
 class Network(multiprocessing.Process):
   def __init__(self, output_queues):
     multiprocessing.Process.__init__(self)
@@ -42,9 +44,7 @@ class Network(multiprocessing.Process):
                           socket.inet_aton(MULTICAST_ADDRESS) + socket.inet_aton(intf))
     udp_socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 20)
 
-    tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    tcp_socket.bind(('', TCP_PORT))
-    tcp_socket.listen(2)
+
     print("Listening for connections")
 
     bad_gaps = {}
@@ -55,18 +55,32 @@ class Network(multiprocessing.Process):
     chickadees = []
     while not quit:
       if not last_new_client or time.clock() - last_new_client > NEW_CLIENT_PERIOD:
-        udp_socket.sendto(struct.pack("bH", 1, TCP_PORT), (MULTICAST_ADDRESS, MULTICAST_PORT))
+        udp_socket.sendto(struct.pack("b", 1), (MULTICAST_ADDRESS, MULTICAST_PORT))
         last_new_client = time.clock()
       try:
-        readable, writable, errored = select.select([tcp_socket] + chickadees, [], [], NEW_CLIENT_PERIOD)
+        readable, writable, errored = select.select([udp_socket] + chickadees, [], [], NEW_CLIENT_PERIOD)
       except KeyboardInterrupt:
         quit = True
         continue
       for chickadee in readable:
-        if chickadee is tcp_socket:
-          chickadee, address = tcp_socket.accept()
-          print("new tcp", address)
-          chickadees.append(chickadee)
+        if chickadee is udp_socket:
+          try:
+            data, addr = chickadee.recvfrom(BUFFER_SIZE)
+          except:
+            quit = True
+            break
+          print(len(data), addr)
+          packet_type = struct.unpack(">b", data[0])[0]
+          print(packet_type)
+
+          # If its an I_AM_AP then tcp to it.
+          if packet_type == PACKET_TYPE_I_AM_AP:
+            tcp_port = struct.unpack("bbH", data)[2]
+            ap = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print((addr[0], tcp_port))
+            ap.connect((addr[0], tcp_port))
+            print("init connection")
+            chickadees.append(ap)
           continue
         try:
           data = chickadee.recv(BUFFER_SIZE)

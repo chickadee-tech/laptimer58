@@ -161,7 +161,7 @@ for frequency_data in split_data:
     #smoothed = scipy.signal.savgol_filter(strengths, 21, 3)
     smoothed = scipy.signal.savgol_filter(strengths, 21, 2)
     frequency_data[frequency][1] = smoothed
-    plt.plot(frequency_data[frequency][0], strengths, ",")
+    plt.plot(frequency_data[frequency][0], strengths, ".")
     plt.plot(frequency_data[frequency][0], smoothed)
     #smoothed = strengths
 

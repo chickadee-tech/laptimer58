@@ -30,6 +30,7 @@ const int RCV_DATA = 13;
 
 const uint8_t PACKET_TYPE_NEW_CLIENT = 1;
 const uint8_t PACKET_TYPE_NEW_PEER = 2;
+const uint8_t PACKET_TYPE_I_AM_AP = 3;
 
 const uint8_t PEER_LED_ON_CYCLE_COUNT = 2;
 const uint8_t PEER_LED_BREAK_CYCLE_COUNT = 20;
@@ -48,6 +49,8 @@ IPAddress ourIp;
 WiFiUDP udp;
 
 // If we are the AP we must also forward packets from peers to clients.
+bool isAP = false;
+
 #define TCP_SERVER_PORT 59736
 WiFiServer server(TCP_SERVER_PORT);
 
@@ -110,6 +113,7 @@ void setup() {
     ourIp = WiFi.softAPIP();
 
     Serial.println("Created network");
+    isAP = true;
   } else {
     WiFi.begin(SSID, PASSWORD);
     uint16 total_delay = 0;
@@ -125,9 +129,9 @@ void setup() {
     }
     
     Serial.println("Joined existing network.");
-    server.begin();
     ourIp = WiFi.localIP();
   }
+  server.begin();
   //Serial.println(ourIp);
   udp.beginMulticast(ourIp, MULTICAST_ADDRESS, PORT);
   udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
@@ -199,13 +203,25 @@ void loop() {
     while (newClient && numClients < MAX_CLIENTS) {
       Serial.println("Accepted new client tcp socket.");
       clients[numClients] = newClient;
+      
+      // We prefix our packets with the chip id so it can be differentiated from our peers.
+      uint32_t chip_id = ESP.getChipId();
+      uint16_t base_offset = WIFI_MTU * numClients;
+      tcp_client_buffer[base_offset] = (char) (chip_id >> 24);
+      tcp_client_buffer[base_offset + 1] = (char) (chip_id >> 16);
+      tcp_client_buffer[base_offset + 2] = (char) (chip_id >> 8);
+      tcp_client_buffer[base_offset + 3] = (char) chip_id;
+      tcp_client_buffer_size[numClients] = 4;
+      
       numClients++;
       newClient = server.available();
     }
-    if (numClients > 0) {
-      digitalWrite(ESP_LED, LOW);
-    } else {
-      digitalWrite(ESP_LED, HIGH);
+    if (!isAP) {
+      if (numClients > 0) {
+        digitalWrite(ESP_LED, LOW);
+      } else {
+        digitalWrite(ESP_LED, HIGH);
+      }
     }
   } else {
     // Forward any tcp packets we've received to all of our clients.
@@ -226,50 +242,28 @@ void loop() {
     Serial.println(udp.available());
 
     int packet_type = udp.read();
+    // Clients such as phones announce themselves and receive a UDP packet back from the AP.
+    // They then need to initiate the TCP connection. (This decision was made because react-native
+    // has no TCP server bindings only TCP client.)
     if (packet_type == PACKET_TYPE_NEW_CLIENT) {
-      udp.read();
-      uint16_t tcp_port = ((uint16_t) udp.read());
-      tcp_port = tcp_port | ((uint16_t) udp.read()) << 8;
-
-      IPAddress new_client_ip = udp.remoteIP();
-      bool client_exists = false;
-      for (int j = 0; j < numClients; j++) {
-        if (clients[j].remoteIP() == new_client_ip) {
-          client_exists = true;
-          break;
-        }
-      }
-
-      if (!client_exists) {
-        if (numClients == MAX_CLIENTS) {
-          errorCode = ERROR_MAX_CLIENTS;
-          return;
-        }
-        if (clients[numClients].connect(new_client_ip, tcp_port)) {
-          // We prefix our packets with the chip id so it can be differentiated from our peers.
-          uint32_t chip_id = ESP.getChipId();
-          uint16_t base_offset = WIFI_MTU * numClients;
-          tcp_client_buffer[base_offset] = (char) (chip_id >> 24);
-          tcp_client_buffer[base_offset + 1] = (char) (chip_id >> 16);
-          tcp_client_buffer[base_offset + 2] = (char) (chip_id >> 8);
-          tcp_client_buffer[base_offset + 3] = (char) chip_id;
-          tcp_client_buffer_size[numClients] = 4;
-          
-          numClients++;
-        } else {
-//          Serial.print("Failed to create client to ");
-//          Serial.print(new_client_ip);
-//          Serial.print(" ");
-//          Serial.println(tcp_port);
-        }
-      }
+      // We only reply to the address that announced itself. Receiving a multicast isn't working on iOS.
+      udp.beginPacket(udp.remoteIP(), PORT);
+      controlPacket[0] = PACKET_TYPE_I_AM_AP;
+      controlPacket[1] = 0;
+      controlPacket[2] = TCP_SERVER_PORT & 0xff;
+      controlPacket[3] = TCP_SERVER_PORT >> 8;
+      udp.write(controlPacket, sizeof(controlPacket));
+      udp.endPacket();
+      Serial.println("sent I_AM_AP back");
+      Serial.println(sizeof(controlPacket));
     } else if (packet_type == PACKET_TYPE_NEW_PEER) {
+      // New peer is announced once when a device is turned on. If we are the AP then we connect to the peer's TCP server.
       udp.read();
       uint16_t tcp_port = ((uint16_t) udp.read());
       tcp_port = tcp_port | ((uint16_t) udp.read()) << 8;
  
       IPAddress new_peer_ip = udp.remoteIP();
-      if (server.status() != LISTEN) {
+      if (isAP) {
         int peer_index = -1;
         for (int j = 0; j < numPeers; j++) {
           if (peer[j].remoteIP() == new_peer_ip) {
@@ -291,20 +285,10 @@ void loop() {
           numPeers++;
         }
       }
+    } else {
+      Serial.print("Unknown packet type");
+      Serial.println(packet_type);
     }
-
-//      udp.beginPacketMulticast(MULTICAST_ADDRESS, PORT, ourIp);
-//      packet[0] = packetNo++;
-//      packet[1] = (char) (lastReadTime >> 24);
-//      packet[2] = (char) (lastReadTime >> 16);
-//      packet[3] = (char) (lastReadTime >> 8);
-//      packet[4] = (char) lastReadTime;
-//      packet[5] = (char) (tunedFrequency >> 8);
-//      packet[6] = (char) tunedFrequency;
-//      packet[7] = (char) (lastValue >> 8);
-//      packet[8] = lastValue;
-//      udp.write(packet, sizeof(packet));
-//      udp.endPacket();
     udp.flush();
   }
 
@@ -331,6 +315,8 @@ void loop() {
         if (WIFI_MTU - tcp_client_buffer_size[j] < packet_size) {
           // TODO(tannewt): Use something else. This blocks on receiving a TCP ack!
           clients[j].write(((const uint8_t *)tcp_client_buffer) + WIFI_MTU * j, tcp_client_buffer_size[j]);
+          Serial.print("Wrote buffer to client ");
+          Serial.println(j);
           // Reset back to 4 buffer size because the first four bytes are chip id.
           tcp_client_buffer_size[j] = 4;
         }
@@ -359,7 +345,7 @@ void loop() {
         lastValue += analogRead(A0);
       }
       lastValue = lastValue / RSSI_READS;
-      Serial.println(lastValue);
+      //Serial.println(lastValue);
       //Serial.print(tunedFrequency);
       //Serial.print(" ");
       //Serial.println(lastValue);
@@ -376,7 +362,7 @@ void loop() {
     digitalWrite(BOARD_LED, HIGH);
 
     // If we are the AP, then blink the ESP LED to indicate the number of connected peers.
-    if (server.status() != LISTEN) {
+    if (isAP) {
       if (numPeers > 0 && peerLedCycle <= PEER_LED_ON_CYCLE_COUNT * 2 * numPeers && peerLedCycle % PEER_LED_ON_CYCLE_COUNT == 0) {
         uint8_t i = peerLedCycle / PEER_LED_ON_CYCLE_COUNT;
         if (i % 2 == 0) {

@@ -2,7 +2,7 @@
 import multiprocessing
 
 from logger import Logger
-from grapher import Grapher
+#from grapher import Grapher
 from network import Network
 
 grapher_queue = multiprocessing.Queue()
@@ -18,5 +18,5 @@ for i, analyzer in enumerate(analyzers):
 network = Network(queues)
 network.start()
 
-grapher = Grapher(grapher_queue)
-grapher.run()
+#grapher = Grapher(grapher_queue)
+#grapher.run()

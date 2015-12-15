@@ -11,9 +11,8 @@ var {
   Text,
   View,
 } = React;
-var dgram = require('react-native-udp');
 var Speech = require('react-native-speech');
-global.Buffer = global.Buffer || require('buffer').Buffer;
+var Network = require('./network');
 
 // ImmersionRC frequencies (not RaceBand): 5740, 5760, 5780, 5800, 5820, 5840, 5860
 // RaceBand 5685, 5695, 5732, 5769, 5806, 5843, 5880, 5917 MHz
@@ -27,28 +26,26 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 // FR4 5740,5760,5780,5800,5820,5840,5860,5880
 var Chickadee = React.createClass({
   getInitialState: function() {
-    return { frequency: "-", strength: "-" };
+    return { frequency: "-", strength: 0 };
   },
   componentDidMount: function() {
-    this.socket = dgram.createSocket("udp4");
-    this.socket.bind(59734);
-    this.socket.once("listening", function() {
-      this.socket.addMembership("239.249.134.147");
-      this.setState({frequency: 5800, strength: 2});
+    this.network = new Network();
+    this.network.addListener("receivedData", function(deviceId, data) {
+      console.log(deviceId, data);
+      let frequency = this.state.frequency;
+      if (frequency === "-") {
+        frequency = Object.keys(data)[0];
+      }
+      this.setState({"frequency": frequency, "strength": data[frequency].strengths[data[frequency].strengths.length - 1]});
     }.bind(this));
-    this.socket.on("message", function(message, rinfo) {
-      //console.log("message", message.readUInt8(0), message.readUInt32BE(1), message.readUInt16BE(5), message.readUInt16BE(7));
-      this.setState({strength: message.readUInt16BE(7)});
-    }.bind(this));
-    this.socket.on("error", console.log);
+    this.network.start();
   },
   componentWillUnmount: function() {
-    this.socket.close();
-    this.socket = null;
+    this.network.stop();
   },
   render: function() {
     Speech.speak({
-      text: '3.5 volts',
+      text: this.state.strength.toString(),
       voice: 'en-US',
       rate: 0.5,
     });

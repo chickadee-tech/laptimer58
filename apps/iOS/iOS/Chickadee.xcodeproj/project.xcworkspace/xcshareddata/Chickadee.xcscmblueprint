@@ -1,30 +1,30 @@
 {
-  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380",
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "B9DF8B4BDEC2832BDCF4539E6D84DE7212A9109B",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
 
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
-    "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380" : 0,
-    "958121811069C87EC28EC7DF8614F18823B99C89" : 0
+    "A70B3D63BC846B46E86654D1BB3344B688999532" : 0,
+    "B9DF8B4BDEC2832BDCF4539E6D84DE7212A9109B" : 0
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "876CC5C2-042A-4178-8488-EF48AB363B9D",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380" : "chickadee-iOS",
-    "958121811069C87EC28EC7DF8614F18823B99C89" : "react-native-speech\/"
+    "A70B3D63BC846B46E86654D1BB3344B688999532" : "RCTTCPSocket\/",
+    "B9DF8B4BDEC2832BDCF4539E6D84DE7212A9109B" : "chickadee-projects\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "Chickadee",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
-  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "iOS\/Chickadee.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "laptimer\/apps\/iOS\/iOS\/Chickadee.xcodeproj",
   "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
     {
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/tannewt\/react-native-speech.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/chickadee-tech\/RCTTCPSocket.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "958121811069C87EC28EC7DF8614F18823B99C89"
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "A70B3D63BC846B46E86654D1BB3344B688999532"
     },
     {
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/tannewt\/chickadee-iOS.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/tannewt\/chickadee-projects.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
-      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "C5DFA226EC50DB9941E4CE54FD13FA14E8D19380"
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "B9DF8B4BDEC2832BDCF4539E6D84DE7212A9109B"
     }
   ]
 }

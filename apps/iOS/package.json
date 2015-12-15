@@ -6,10 +6,10 @@
     "start": "node_modules/react-native/packager/packager.sh"
   },
   "dependencies": {
+    "RCTTCPSocket": "github:chickadee-tech/RCTTCPSocket",
     "buffer": "^3.4.3",
-    "ml-savitzky-golay": "^2.0.0",
     "react-native": "^0.16.0",
-    "react-native-speech": "^0.1.1",
+    "react-native-speech": "github:tannewt/react-native-speech",
     "react-native-udp": "^1.0.3"
   },
   "devDependencies": {

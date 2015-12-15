@@ -14,7 +14,9 @@
 		00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302DC1ABCB9D200DB3ED1 /* libRCTNetwork.a */; };
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		00E356F31AD99517003FC87E /* ChickadeeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ChickadeeTests.m */; };
-		091001791C1F5F9D005F7C4C /* libSpeechSynthesizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C716631BFBDB37001EB62A /* libSpeechSynthesizer.a */; };
+		097D7C201C1F7787005379CD /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
+		097D7C2A1C1F8F4E005379CD /* libSpeechSynthesizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C716631BFBDB37001EB62A /* libSpeechSynthesizer.a */; };
+		097D7C311C1F9264005379CD /* libRCTTCPSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 097D7C301C1F9258005379CD /* libRCTTCPSocket.a */; };
 		09C7166B1BFBDB5D001EB62A /* libUdpSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C716691BFBDB42001EB62A /* libUdpSockets.a */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
@@ -23,7 +25,6 @@
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 /* End PBXBuildFile section */
 
@@ -70,12 +71,12 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = Chickadee;
 		};
-		09C716561BFBDA1D001EB62A /* PBXContainerItemProxy */ = {
+		097D7C2F1C1F9258005379CD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 09C716481BFBDA1D001EB62A /* SpeechSynthesizer.xcodeproj */;
+			containerPortal = 097D7C2B1C1F9257005379CD /* RCTTCPSocket.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 134814201AA4EA6300B7C361;
-			remoteInfo = SpeechSynthesizer;
+			remoteGlobalIDString = CD35AD751B7488C10078B662;
+			remoteInfo = RCTTCPSocket;
 		};
 		09C7165C1BFBDB2A001EB62A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -145,7 +146,7 @@
 		00E356EE1AD99517003FC87E /* ChickadeeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChickadeeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ChickadeeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChickadeeTests.m; sourceTree = "<group>"; };
-		09C716481BFBDA1D001EB62A /* SpeechSynthesizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SpeechSynthesizer.xcodeproj; path = "../node_modules/react-native-speech/SpeechSynthesizer.xcodeproj"; sourceTree = "<group>"; };
+		097D7C2B1C1F9257005379CD /* RCTTCPSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTTCPSocket.xcodeproj; path = ../node_modules/RCTTCPSocket/RCTTCPSocket.xcodeproj; sourceTree = "<group>"; };
 		09C716581BFBDB2A001EB62A /* SpeechSynthesizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SpeechSynthesizer.xcodeproj; path = "../../node_modules/react-native-speech/SpeechSynthesizer.xcodeproj"; sourceTree = "<group>"; };
 		09C7165E1BFBDB37001EB62A /* SpeechSynthesizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SpeechSynthesizer.xcodeproj; path = "../node_modules/react-native-speech/SpeechSynthesizer.xcodeproj"; sourceTree = "<group>"; };
 		09C716641BFBDB41001EB62A /* UdpSockets.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UdpSockets.xcodeproj; path = "../node_modules/react-native-udp/ios/UdpSockets.xcodeproj"; sourceTree = "<group>"; };
@@ -175,9 +176,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				091001791C1F5F9D005F7C4C /* libSpeechSynthesizer.a in Frameworks */,
+				097D7C311C1F9264005379CD /* libRCTTCPSocket.a in Frameworks */,
+				097D7C2A1C1F8F4E005379CD /* libSpeechSynthesizer.a in Frameworks */,
+				097D7C201C1F7787005379CD /* libReact.a in Frameworks */,
 				09C7166B1BFBDB5D001EB62A /* libUdpSockets.a in Frameworks */,
-				146834051AC3E58100842450 /* libReact.a in Frameworks */,
 				00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */,
 				00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */,
 				00C302E81ABCBA2D00DB3ED1 /* libRCTImage.a in Frameworks */,
@@ -251,10 +253,10 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		09C716491BFBDA1D001EB62A /* Products */ = {
+		097D7C2C1C1F9257005379CD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				09C716571BFBDA1D001EB62A /* libSpeechSynthesizer.a */,
+				097D7C301C1F9258005379CD /* libRCTTCPSocket.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -332,6 +334,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				097D7C2B1C1F9257005379CD /* RCTTCPSocket.xcodeproj */,
 				09C716641BFBDB41001EB62A /* UdpSockets.xcodeproj */,
 				09C7165E1BFBDB37001EB62A /* SpeechSynthesizer.xcodeproj */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
@@ -359,7 +362,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				09C716481BFBDA1D001EB62A /* SpeechSynthesizer.xcodeproj */,
 				13B07FAE1A68108700A75B9A /* Chickadee */,
 				00E356EF1AD99517003FC87E /* ChickadeeTests */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -471,6 +473,10 @@
 					ProjectRef = 139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */;
 				},
 				{
+					ProductGroup = 097D7C2C1C1F9257005379CD /* Products */;
+					ProjectRef = 097D7C2B1C1F9257005379CD /* RCTTCPSocket.xcodeproj */;
+				},
+				{
 					ProductGroup = 832341B11AAA6A8300B99B32 /* Products */;
 					ProjectRef = 832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */;
 				},
@@ -493,10 +499,6 @@
 				{
 					ProductGroup = 09C716591BFBDB2A001EB62A /* Products */;
 					ProjectRef = 09C716581BFBDB2A001EB62A /* SpeechSynthesizer.xcodeproj */;
-				},
-				{
-					ProductGroup = 09C716491BFBDA1D001EB62A /* Products */;
-					ProjectRef = 09C716481BFBDA1D001EB62A /* SpeechSynthesizer.xcodeproj */;
 				},
 				{
 					ProductGroup = 09C716651BFBDB41001EB62A /* Products */;
@@ -547,11 +549,11 @@
 			remoteRef = 00C302E31ABCB9EE00DB3ED1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		09C716571BFBDA1D001EB62A /* libSpeechSynthesizer.a */ = {
+		097D7C301C1F9258005379CD /* libRCTTCPSocket.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libSpeechSynthesizer.a;
-			remoteRef = 09C716561BFBDA1D001EB62A /* PBXContainerItemProxy */;
+			path = libRCTTCPSocket.a;
+			remoteRef = 097D7C2F1C1F9258005379CD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		09C7165D1BFBDB2A001EB62A /* libSpeechSynthesizer.a */ = {
@@ -723,6 +725,7 @@
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Chickadee/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
@@ -743,6 +746,7 @@
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Chickadee/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
