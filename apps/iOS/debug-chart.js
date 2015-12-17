@@ -7,7 +7,7 @@ class DebugChart {
     this.processData = this.processData.bind(this);
     this.processPeak = this.processPeak.bind(this);
     this.processSmoothedData = this.processSmoothedData.bind(this);
-    this.plot = gnuplot().set('term png size 10000, 6000')
+    this.plot = gnuplot().set('term png size 3000, 1500')
                          .set('output "data.png"')
                          .set('title "Some Math Functions"')
                          .set('zeroaxis');

@@ -9,19 +9,15 @@ var PACKET_TYPE_I_AM_AP = 3;
 
 class Network extends EventEmitter {
   start() {
-    console.log("start");
     this.udp = dgram.createSocket("udp4");
     this.udp.bind(59734);
     this.udp.once("listening", function() {
       this.udp.addMembership("239.249.134.147");
-      console.log("joined group");
 
       var buf = new Uint8Array(1);
       buf[0] = 1;
       this.udp.send(buf, 0, buf.length, 59734, "239.249.134.147", function(err) {
         if (err) throw err;
-
-        console.log('message was sent');
       });
     }.bind(this));
     this.udp.on("message", function(message, rinfo) {
@@ -29,23 +25,23 @@ class Network extends EventEmitter {
       var packet_type = message.readUInt8(0);
       if (packet_type === PACKET_TYPE_I_AM_AP) {
         var tcp_port = message.readUInt16LE(2);
-        console.log(rinfo);
-        console.log("found tcp port", tcp_port);
         this.tcp = new TCPSocket(rinfo.address, tcp_port);
-        this.tcp.onopen = this.tcpOpened;
+        this.tcp.onopen = this.tcpOpened.bind(this);
         this.tcp.ondata = this.tcpReceivedData.bind(this);
-        this.tcp.onerror = this.tcpError;
-        this.tcp.onclose = this.tcpClosed;
-        console.log("constructed tcp socket");
+        this.tcp.onerror = this.tcpError.bind(this);
+        this.tcp.onclose = this.tcpClosed.bind(this);
       }
     }.bind(this));
     this.udp.on("error", console.log);
-    console.log("set all callbacks");
   }
 
   stop() {
     this.udp.close();
     this.udp = null;
+    if (this.tcp) {
+      this.tcp.close();
+      this.tcp = null;
+    }
   }
 
   tcpOpened() {
@@ -75,10 +71,12 @@ class Network extends EventEmitter {
   }
 
   tcpError(error) {
+    this.emit("connectionLost");
     console.log("TCP Error", error)
   }
 
   tcpClosed() {
+    this.emit("connectionLost");
     console.log("TCP connection closed.");
   }
 }

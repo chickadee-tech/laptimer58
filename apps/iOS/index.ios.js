@@ -13,6 +13,9 @@ var {
 } = React;
 var Speech = require('react-native-speech');
 var Network = require('./network');
+var KernelFilter = require('./kernel-filter');
+var PeakFinder = require('./peak-finder');
+var ReplayNetwork = require('./replay-network');
 
 // ImmersionRC frequencies (not RaceBand): 5740, 5760, 5780, 5800, 5820, 5840, 5860
 // RaceBand 5685, 5695, 5732, 5769, 5806, 5843, 5880, 5917 MHz
@@ -29,7 +32,8 @@ var Chickadee = React.createClass({
     return { frequency: "-", strength: 0 };
   },
   componentDidMount: function() {
-    this.network = new Network();
+    //this.network = new Network();
+    this.network = new ReplayNetwork();
     this.network.addListener("newData", function(deviceId, data) {
       console.log(deviceId, data);
       let frequency = this.state.frequency;
@@ -38,17 +42,51 @@ var Chickadee = React.createClass({
       }
       this.setState({"frequency": frequency, "strength": data[frequency].strengths[data[frequency].strengths.length - 1]});
     }.bind(this));
+    var kernel_filter = new KernelFilter();
+    this.network.addListener("newData", kernel_filter.processData);
+    this.network.addListener("connectionLost", function() {
+      Speech.speak({
+        text: "Connection lost",
+        voice: 'en-US',
+        rate: 0.5,
+      });
+    })
+    var peak_finder = new PeakFinder();
+    kernel_filter.addListener("newData", peak_finder.processData);
+    this.lastPeakTimestamp = {};
+    this.lap = -1;
+    peak_finder.addListener("newPeak", function(frequency, timestamp, strength) {
+      if (!(frequency in this.lastPeakTimestamp)) {
+        Speech.speak({
+          text: "Timer ready on frequency " + frequency,
+          voice: 'en-US',
+          rate: 0.5,
+        });
+      } else {
+        let lapTime = (timestamp - this.lastPeakTimestamp[frequency]) / 1000;
+        this.lap++;
+        if (this.lap === 0) {
+          Speech.speak({
+            text: "Timer running",
+            voice: 'en-US',
+            rate: 0.5,
+          });
+        } else if (this.lap > 0) {
+          Speech.speak({
+            text: "Lap " + this.lap + ". " + lapTime + " seconds",
+            voice: 'en-US',
+            rate: 0.5,
+          });
+        }
+      }
+      this.lastPeakTimestamp[frequency] = timestamp;
+    }.bind(this));
     this.network.start();
   },
   componentWillUnmount: function() {
     this.network.stop();
   },
   render: function() {
-    Speech.speak({
-      text: this.state.strength.toString(),
-      voice: 'en-US',
-      rate: 0.5,
-    });
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
