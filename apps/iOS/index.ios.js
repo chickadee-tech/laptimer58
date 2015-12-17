@@ -30,7 +30,7 @@ var Chickadee = React.createClass({
   },
   componentDidMount: function() {
     this.network = new Network();
-    this.network.addListener("receivedData", function(deviceId, data) {
+    this.network.addListener("newData", function(deviceId, data) {
       console.log(deviceId, data);
       let frequency = this.state.frequency;
       if (frequency === "-") {

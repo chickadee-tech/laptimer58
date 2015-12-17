@@ -71,7 +71,7 @@ class Network extends EventEmitter {
       output[frequency].strengths.push(strength);
       output[frequency].timestamps.push(timestamp);
     }
-    this.emit("receivedData", deviceId, output);
+    this.emit("newData", deviceId, output);
   }
 
   tcpError(error) {
