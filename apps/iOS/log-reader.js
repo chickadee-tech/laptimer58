@@ -7,7 +7,15 @@ class LogReader extends EventEmitter {
     super();
     this.logs = [];
     for (let filename of log_filenames) {
-      this.logs.push(jsonfile.readFileSync(filename));
+      var log = jsonfile.readFileSync(filename);
+      if (Array.isArray(log)) {
+        for (let single_log of log) {
+          this.logs.push(single_log);
+        }
+      } else {
+        this.logs.push(log);
+      }
+
     }
   }
 

@@ -6,9 +6,9 @@ import time
 
 print("loading replay data")
 packets = []
-for fn in sys.argv[1:]:
-  with open(fn, "r") as f:
-    log = json.load(f)
+with open(sys.argv[1], "r") as f:
+  all_logs = json.load(f)
+  for log in all_logs:
     deviceId = log["chip_id"]
     for frame_group in log["frame_groups"]:
       timestamp = frame_group["received"]
@@ -18,7 +18,7 @@ for fn in sys.argv[1:]:
       for frame in frame_group["frames"]:
         packet.append(struct.pack(">BIHH", frame["iteration"],
                                              frame["timestamp"],
-                                             frame["frequency"],
+                                             int(frame["frequency"]),
                                              frame["strength"]))
       packets.append((timestamp, "".join(packet)))
 

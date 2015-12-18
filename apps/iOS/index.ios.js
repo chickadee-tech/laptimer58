@@ -12,6 +12,7 @@ var {
   View,
 } = React;
 var Speech = require('react-native-speech');
+var Logger = require('./logger');
 var Network = require('./network');
 var KernelFilter = require('./kernel-filter');
 var PeakFinder = require('./peak-finder');
@@ -32,8 +33,8 @@ var Chickadee = React.createClass({
     return { frequency: "-", strength: 0 };
   },
   componentDidMount: function() {
-    //this.network = new Network();
-    this.network = new ReplayNetwork();
+    this.network = new Network();
+    //this.network = new ReplayNetwork();
     this.network.addListener("newData", function(deviceId, data) {
       console.log(deviceId, data);
       let frequency = this.state.frequency;
@@ -44,13 +45,31 @@ var Chickadee = React.createClass({
     }.bind(this));
     var kernel_filter = new KernelFilter();
     this.network.addListener("newData", kernel_filter.processData);
-    this.network.addListener("connectionLost", function() {
+    // this.network.addListener("connectionLost", function() {
+    //   Speech.speak({
+    //     text: "Connection lost",
+    //     voice: 'en-US',
+    //     rate: 0.5,
+    //   });
+    // });
+    this.logger = new Logger();
+    this.network.addListener("newData", this.logger.processData);
+    this.network.addListener("connectionLost", this.logger.writeFile);
+    this.logger.addListener("logWritten", function() {
+      console.log("logWritten");
       Speech.speak({
-        text: "Connection lost",
+        text: "Connection lost. Log written",
         voice: 'en-US',
         rate: 0.5,
       });
-    })
+    });
+    this.logger.addListener("logWriteFailed", function() {
+      Speech.speak({
+        text: "Connection lost. Log write failed",
+        voice: 'en-US',
+        rate: 0.5,
+      });
+    });
     var peak_finder = new PeakFinder();
     kernel_filter.addListener("newData", peak_finder.processData);
     this.lastPeakTimestamp = {};

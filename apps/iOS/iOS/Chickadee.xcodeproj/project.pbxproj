@@ -17,6 +17,7 @@
 		097D7C201C1F7787005379CD /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		097D7C2A1C1F8F4E005379CD /* libSpeechSynthesizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C716631BFBDB37001EB62A /* libSpeechSynthesizer.a */; };
 		097D7C311C1F9264005379CD /* libRCTTCPSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 097D7C301C1F9258005379CD /* libRCTTCPSocket.a */; };
+		097D7C381C2384EA005379CD /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 097D7C371C2384CE005379CD /* libRNFS.a */; };
 		09C7166B1BFBDB5D001EB62A /* libUdpSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09C716691BFBDB42001EB62A /* libUdpSockets.a */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
@@ -77,6 +78,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CD35AD751B7488C10078B662;
 			remoteInfo = RCTTCPSocket;
+		};
+		097D7C361C2384CE005379CD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 097D7C321C2384CE005379CD /* RNFS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F12AFB9B1ADAF8F800E0535D;
+			remoteInfo = RNFS;
 		};
 		09C7165C1BFBDB2A001EB62A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -147,6 +155,7 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ChickadeeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ChickadeeTests.m; sourceTree = "<group>"; };
 		097D7C2B1C1F9257005379CD /* RCTTCPSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTTCPSocket.xcodeproj; path = ../node_modules/RCTTCPSocket/RCTTCPSocket.xcodeproj; sourceTree = "<group>"; };
+		097D7C321C2384CE005379CD /* RNFS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		09C716581BFBDB2A001EB62A /* SpeechSynthesizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SpeechSynthesizer.xcodeproj; path = "../../node_modules/react-native-speech/SpeechSynthesizer.xcodeproj"; sourceTree = "<group>"; };
 		09C7165E1BFBDB37001EB62A /* SpeechSynthesizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SpeechSynthesizer.xcodeproj; path = "../node_modules/react-native-speech/SpeechSynthesizer.xcodeproj"; sourceTree = "<group>"; };
 		09C716641BFBDB41001EB62A /* UdpSockets.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UdpSockets.xcodeproj; path = "../node_modules/react-native-udp/ios/UdpSockets.xcodeproj"; sourceTree = "<group>"; };
@@ -176,6 +185,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				097D7C381C2384EA005379CD /* libRNFS.a in Frameworks */,
 				097D7C311C1F9264005379CD /* libRCTTCPSocket.a in Frameworks */,
 				097D7C2A1C1F8F4E005379CD /* libSpeechSynthesizer.a in Frameworks */,
 				097D7C201C1F7787005379CD /* libReact.a in Frameworks */,
@@ -261,6 +271,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		097D7C331C2384CE005379CD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				097D7C371C2384CE005379CD /* libRNFS.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		09C716591BFBDB2A001EB62A /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -334,6 +352,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				097D7C321C2384CE005379CD /* RNFS.xcodeproj */,
 				097D7C2B1C1F9257005379CD /* RCTTCPSocket.xcodeproj */,
 				09C716641BFBDB41001EB62A /* UdpSockets.xcodeproj */,
 				09C7165E1BFBDB37001EB62A /* SpeechSynthesizer.xcodeproj */,
@@ -493,6 +512,10 @@
 					ProjectRef = 146833FF1AC3E56700842450 /* React.xcodeproj */;
 				},
 				{
+					ProductGroup = 097D7C331C2384CE005379CD /* Products */;
+					ProjectRef = 097D7C321C2384CE005379CD /* RNFS.xcodeproj */;
+				},
+				{
 					ProductGroup = 09C7165F1BFBDB37001EB62A /* Products */;
 					ProjectRef = 09C7165E1BFBDB37001EB62A /* SpeechSynthesizer.xcodeproj */;
 				},
@@ -554,6 +577,13 @@
 			fileType = archive.ar;
 			path = libRCTTCPSocket.a;
 			remoteRef = 097D7C2F1C1F9258005379CD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		097D7C371C2384CE005379CD /* libRNFS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNFS.a;
+			remoteRef = 097D7C361C2384CE005379CD /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		09C7165D1BFBDB2A001EB62A /* libSpeechSynthesizer.a */ = {

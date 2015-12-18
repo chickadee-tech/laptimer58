@@ -30,11 +30,11 @@ class Logger(multiprocessing.Process):
         break
       self.update(frame_group)
 
-    for device in self.data_by_device:
-      fn = os.path.join(self.directory, self.start_time + "_" + str(device) + ".json")
-      with open(fn, "w") as f:
-        json.dump(self.data_by_device[device], f, indent=2, separators=(',', ': '))
-      print("wrote log to " + fn)
+    fn = os.path.join(self.directory, self.start_time + ".json")
+    all_data = []
+    with open(fn, "w") as f:
+      json.dump(self.data_by_device.values(), f, indent=2, separators=(',', ': '))
+    print("wrote log to " + fn)
 
   def update(self, frame_group):
     if frame_group.chip_id not in self.data_by_device:

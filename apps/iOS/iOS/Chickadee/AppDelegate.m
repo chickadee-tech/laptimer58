@@ -31,19 +31,19 @@
    * on the same Wi-Fi network.
    */
 
-   jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle?platform=ios"];
+   //jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle?platform=ios"];
 
   /**
    * OPTION 2
    * Load from pre-bundled file on disk. To re-generate the static bundle
    * from the root of your project directory, run
    *
-   * $ react-native bundle --minify
+   * $ react-native bundle --entry-file index.ios.js --platform=ios --minify --bundle-output=iOS/Chickadee/main.jsbundle
    *
    * see http://facebook.github.io/react-native/docs/runningondevice.html
    */
 
-   //jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+   jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"Chickadee"
